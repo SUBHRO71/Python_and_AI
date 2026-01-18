@@ -1,6 +1,7 @@
 import socket
 import threading
 import sys
+import time
 
 HOST = "irc.libera.chat"
 PORT = 6667
@@ -23,6 +24,9 @@ class IRC_client:
         self.channel = channel
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.running = True
+    
+    def get_timestamp(self):
+        return time.strftime("[%H:%M:%S]", time.localtime())
         
     def send(self,msg):
         self.sock.send(f"{msg}/r/n".encode("utf-8"))
@@ -82,10 +86,10 @@ class IRC_client:
         if command == "PRIVMSG":
             target = parts[2]
             content = line.split(" :", 1)[1] if " :" in line else ""
-            print(f"{CLR_NICK}<{sender}>{CLR_RESET} : {content}")
+            print(f"{self.get_timestamp()} {CLR_NICK}<{sender}>{CLR_RESET} : {content}")
         
         elif command == "JOIN":
-            print(f"{CLR_SYS}*** {sender} joined {self.channel}{CLR_RESET}")
+            print(f"{self.get_timestamp()} {CLR_SYS}*** {sender} joined {self.channel}{CLR_RESET}")
 
     def run_cli(self):
         print(f"{CLR_SYS}Commands: /join #channel, /quit, or just type to chat.{CLR_RESET}")
@@ -110,7 +114,7 @@ class IRC_client:
                         print(f"{CLR_ERR}Unknown command or missing arguments.{CLR_RESET}")
                 else:
                     self.send(f"PRIVMSG {self.channel} :{msg}")
-                    print(f"{CLR_NICK}<{self.nick}>{CLR_RESET} : {msg}")
+                    print(f"{self.get_timestamp()} {CLR_NICK}<{self.nick}>{CLR_RESET} : {msg}")
 
             except EOFError:
                 break
