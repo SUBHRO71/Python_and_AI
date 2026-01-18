@@ -8,6 +8,12 @@ NICK = "Subhro_123"
 USER = "subhro 0 * :CS student learning stuffs"
 CHANNEL = "#test-channel-123"
 
+CLR_RESET = "\033[0m"
+CLR_NICK = "\033[94m"   
+CLR_MSG = "\033[92m"    
+CLR_SYS = "\033[93m"    
+CLR_ERR = "\033[91m" 
+
 class IRC_client:
     def __init__(self,host,port,nick,user,channel):
         self.host = host
@@ -23,7 +29,7 @@ class IRC_client:
     
     def connect(self):
         try:
-            print(f"Connecting to {self.host}:{self.port}...")
+            print(f"{CLR_SYS}Connecting to {self.host}:{self.port}...{CLR_RESET}")
             self.sock.connect((self.host, self.port))
             
             
@@ -35,7 +41,7 @@ class IRC_client:
             self.send(f"JOIN {self.channel}")
         
         except Exception as error:
-            print(f"Connection error: {error}")
+            print(f"{CLR_ERR}Connection error: {error}{CLR_RESET}")
             sys.exit(1)
     
     
@@ -53,7 +59,7 @@ class IRC_client:
                     self.parse_line(line)
             except Exception:
                 break
-        print(f"Disconnected from server.")
+        print(f"{CLR_ERR}Disconnected from server.{CLR_RESET}")
         self.running = False
         
 
@@ -76,13 +82,13 @@ class IRC_client:
         if command == "PRIVMSG":
             target = parts[2]
             content = line.split(" :", 1)[1] if " :" in line else ""
-            print(f"<{sender}> : {content}")
+            print(f"{CLR_NICK}<{sender}>{CLR_RESET} : {content}")
         
         elif command == "JOIN":
-            print(f"*** {sender} joined {self.channel}")
+            print(f"{CLR_SYS}*** {sender} joined {self.channel}{CLR_RESET}")
 
     def run_cli(self):
-        print(f"Commands: /join #channel, /quit, or just type to chat.")
+        print(f"{CLR_SYS}Commands: /join #channel, /quit, or just type to chat.{CLR_RESET}")
         while self.running:
             try:
                 msg = input()
@@ -101,10 +107,10 @@ class IRC_client:
                         self.channel = new_channel
                         self.send(f"JOIN {self.channel}")
                     else:
-                        print(f"Unknown command or missing arguments.")
+                        print(f"{CLR_ERR}Unknown command or missing arguments.{CLR_RESET}")
                 else:
                     self.send(f"PRIVMSG {self.channel} :{msg}")
-                    print(f"<{self.nick}> : {msg}")
+                    print(f"{CLR_NICK}<{self.nick}>{CLR_RESET} : {msg}")
 
             except EOFError:
                 break
